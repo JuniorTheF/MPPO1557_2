@@ -3,10 +3,6 @@
   width: 100vw;
   display: flex;
   flex-direction: column;
-  background-image: url('../public/background.jpg');
-  background-position: 50% 50%;
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .LoginContainer {
@@ -47,6 +43,12 @@
 
 .Button {
   width: 5%;
+  display: flex;
+  justify-content: center;
   align-self: center;
+  padding: 0%;
 }
 
+.Bu{
+  width: 100%;
+}
