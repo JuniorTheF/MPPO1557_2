@@ -1,6 +1,6 @@
 import { Component } from "react";
 import "./button.css"
-import { Link, Route } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 class AccButton extends Component {
     render(){
         return(
