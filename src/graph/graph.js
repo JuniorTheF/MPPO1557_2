@@ -9,12 +9,12 @@ class Graph extends Component{
     
     
     render(){
-
+        const number = this.props.number
         return(
             
             <>
             <div className='Graph'>
-            <Link to="/UserPage">Вернуться на главную</Link>
+            <Link to="/UserPage">Вернуться на главную {number}</Link>
             </div>
             </>
         )

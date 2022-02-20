@@ -15,7 +15,10 @@ class App extends Component{
           <Routes>
           <Route index element={<LoginPage />} />
           <Route exact path="/UserPage" element={<UserPage num={numbers}/>} />
-          <Route path="/User/:numbers" element={<Graph />} />
+          {numbers.map((number) => (
+                <Route path={`/User/${number}`} element={<Graph number={number}/>} />
+            ))}
+          
           </Routes>
         </>
   )
