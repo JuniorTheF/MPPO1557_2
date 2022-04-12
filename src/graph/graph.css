@@ -15,6 +15,11 @@
 .Plot {
     background-color: white;
 }
+.DateButtons{
+    display: flex;
+    flex-direction: column;
+    width: 5vw;
+}
 
 .Container{
     width: 80vw;

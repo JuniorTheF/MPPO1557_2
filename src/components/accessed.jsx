@@ -1,16 +1,13 @@
-import { Component } from "react";
 import AccButton from "./accbutton"
 
-class Accessed extends Component {
-    render() {
+function Accessed(props){
         return (
             <>
-            {this.props.numbers.map((number) => (
-                <AccButton key={number^2} numbers={number}></AccButton>
+            {props.numbers.accessed.map((number) => (
+                <AccButton numbers={number.data_id} login={props.numbers.login} password={props.numbers.password} accessed={props.numbers.accessed}></AccButton>
             ))}
             </>
         );
-    }
 }
 
 

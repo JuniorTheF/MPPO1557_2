@@ -1,14 +1,16 @@
-import { Component } from "react";
 import "./button.css"
 import { Link } from 'react-router-dom'
-class AccButton extends Component {
-    render(){
+
+function AccButton(props){
         return(
             <>
-                <Link to={`/User/${this.props.numbers}`}><button className="button">{this.props.numbers}</button></Link>
+                <Link to={`/sensor/${props.numbers}`}
+                    state = { {login: props.login, password: props.password, accessed: props.accessed, id:props.numbers} }
+                    >
+                    <button className="button">{props.numbers}</button>                   
+                </Link>
             </>
         )
-    }
 }
 
 export default AccButton;
