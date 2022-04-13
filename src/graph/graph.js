@@ -2,20 +2,24 @@ import { Link, useLocation } from 'react-router-dom'
 import './graph.css'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
 import React, { useState } from 'react';
+import BasicTable from '../table.js'
 
 
 
 function Graph(){
         
-    const [daily, setDaily] = useState(true);
+    const [mode, setMode] = useState(0);
     const [fetchData, setData] = useState("");
     const [count, setCount] = useState(false);
+    const [clicked, setClicked] = useState(false);
     const [parsedData, setParsedData] = useState([])
+    const [graphmode, setGraphmode] = useState(0)
         const pageWidth = document.documentElement.scrollWidth
         const pageHeight = document.documentElement.scrollHeight
 
         const handleClick = (curr_state) => {
-            setDaily(curr_state) 
+            setMode(curr_state) 
+            setClicked(false)
         }   
 
         const deleteRepeating = (argu) => {
@@ -49,6 +53,8 @@ function Graph(){
                     return entry
             }).filter( item => item )
             setParsedData(allowed)
+            setClicked(true)
+            updateParsedData()
         }
 
         const getPlotData = () =>{
@@ -57,6 +63,18 @@ function Graph(){
                 uv: ((Number(unit.off_active_a) + Number(unit.off_active_b) + Number(unit.off_active_c))-(Number(unit.on_active_a) + Number(unit.on_active_b) + Number(unit.on_active_c)))/(Number(unit.off_active_a) + Number(unit.off_active_b) + Number(unit.off_active_c))
             }))
             return preReturn
+        }
+
+        const updateParsedData = () =>{
+            parsedData.map((subentry) => {
+                let calculated = ((Number(subentry.off_active_a) + Number(subentry.off_active_b) + Number(subentry.off_active_c))-(Number(subentry.on_active_a) + Number(subentry.on_active_b) + Number(subentry.on_active_c)))/(Number(subentry.off_active_a) + Number(subentry.off_active_b) + Number(subentry.off_active_c))
+                return Object.defineProperty(subentry, 'eff', {
+                  value: (calculated*100).toFixed(2)+"%",
+                  enumerable: true,
+                  configurable: true,
+                  writable: true
+              })
+            })
         }
 
         const exists = (props) =>{
@@ -88,29 +106,40 @@ function Graph(){
                 <Link to={`/UserPage`}
                         state = {{ login: state.login, password: state.password, accessed: state.accessed }}>Вернуться на главную</Link>
                 <div className='Buttons'>
-                <button onClick={() => handleClick(true) }>Отобразить за день</button>
-                <button onClick={() => handleClick(false) } style={{'marginTop': '2%'}}>Отобразить за неделю</button>
+                <button onClick={() => handleClick(1) }>Отобразить за день</button>
+                <button onClick={() => handleClick(7) } style={{'marginTop': '2%'}}>Отобразить за неделю</button>
                 </div>
                 </div>
-                {daily ? 
-                <div>
+                {mode == 1 ? 
+                <div className = "Changeble">
                     <div className="DateButtons">
                     {dailyDateList.map((row) => <button onClick={() => dailyChart(datePicker(row))}>{row}</button>)}
                     </div>
                     <div className="Container">
-                    {exists(parsedData) ? 
+                    
+                    { clicked ? 
+                            exists(parsedData) && graphmode == 1 ?
                         <LineChart width={pageWidth*0.65} data={getPlotData()} height={pageHeight*0.6} margin={{ top: 10, right: 60, bottom: 10, left: 0 }} className='Plot' baseValue={1}>
                         <Line type="monotone" dataKey="uv" stroke="#000000" />
                         <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
                         <XAxis dataKey="name" />
                         <YAxis domain={[0,1]} />
                         </LineChart> 
-                : <div>Недостаточно данных для построения графика</div>}
+                        : exists(parsedData) && graphmode == 0 ? 
+                        <BasicTable data={parsedData} className="Container"/>
+                        :
+                        <div>Недостаточно данных</div>
+                : <div>Выберите день</div>}
                     </div>
                 </div> 
                 : 
+                mode == 7 ? 
                 <div>
-                    
+                    Неделя
+                </div>
+                :
+                <div>
+                    Выберите режим отображения
                 </div>}
                 </div>
             )
@@ -124,7 +153,7 @@ function Graph(){
         else {
             return <div className='Graph'>
                 <div>no access</div>
-                <Link to={`/`}>Вернуться к регистрации</Link>
+                <Link to={`/`}>Вернуться к авторизации</Link>
             </div>
         }
         

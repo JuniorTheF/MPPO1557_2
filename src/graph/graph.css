@@ -23,7 +23,13 @@
 
 .Container{
     width: 80vw;
-    display: flex;
-    align-items: center;
+    margin-top: 10vh;
+    align-items: flex-start;
     justify-content: center;
+    display: flex;
+    margin-left: 10px;
+}
+
+.Changeble{
+    display:flex;
 }
