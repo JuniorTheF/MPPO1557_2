@@ -60,7 +60,7 @@ function Graph(){
         }
 
         const exists = (props) =>{
-            if (props.length !== 0){
+            if (props.length > 1){
                 return true
             }
         }
@@ -74,51 +74,60 @@ function Graph(){
         }
 
         let dailyDateList = 0
-        if (!count){
-            getData(state.login, state.password, state.id)
-        }
-        if (count){
-            dailyDateList = fetchData.map(v => v.start_date.split(' ')[0])
-            dailyDateList = deleteRepeating(dailyDateList)
-            let secDiff = dailyDateList.map((num) => new Date(num.split('.').reverse().join('.')))
-        return(
-            <div className='Graph'>
-            <div>
-            <Link to={`/UserPage`}
-                    state = {{ login: state.login, password: state.password, accessed: state.accessed }}>Вернуться на главную</Link>
-            <div className='Buttons'>
-            <button onClick={() => handleClick(true) }>Отобразить за день</button>
-            <button onClick={() => handleClick(false) } style={{'marginTop': '2%'}}>Отобразить за неделю</button>
-            </div>
-            </div>
-            {daily ? 
-            <div>
-                <div className="DateButtons">
-                {dailyDateList.map((row) => <button onClick={() => dailyChart(datePicker(row))}>{row}</button>)}
+        if (state != null) {
+            if (!count){
+                getData(state.login, state.password, state.id)
+            }
+            if (count){
+                dailyDateList = fetchData.map(v => v.start_date.split(' ')[0])
+                dailyDateList = deleteRepeating(dailyDateList)
+                let secDiff = dailyDateList.map((num) => new Date(num.split('.').reverse().join('.')))
+            return(
+                <div className='Graph'>
+                <div>
+                <Link to={`/UserPage`}
+                        state = {{ login: state.login, password: state.password, accessed: state.accessed }}>Вернуться на главную</Link>
+                <div className='Buttons'>
+                <button onClick={() => handleClick(true) }>Отобразить за день</button>
+                <button onClick={() => handleClick(false) } style={{'marginTop': '2%'}}>Отобразить за неделю</button>
                 </div>
-                <div className="Container">
-                {exists(parsedData) ? 
-                    <LineChart width={pageWidth*0.65} data={getPlotData()} height={pageHeight*0.6} margin={{ top: 10, right: 60, bottom: 10, left: 0 }} className='Plot' baseValue={1}>
-                    <Line type="monotone" dataKey="uv" stroke="#000000" />
-                    <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-                    <XAxis dataKey="name" />
-                    <YAxis domain={[0,1]} />
-                    </LineChart> 
-            : null}
                 </div>
-            </div> 
-            : 
-            <div>
-                
-            </div>}
-            </div>
-        )
+                {daily ? 
+                <div>
+                    <div className="DateButtons">
+                    {dailyDateList.map((row) => <button onClick={() => dailyChart(datePicker(row))}>{row}</button>)}
+                    </div>
+                    <div className="Container">
+                    {exists(parsedData) ? 
+                        <LineChart width={pageWidth*0.65} data={getPlotData()} height={pageHeight*0.6} margin={{ top: 10, right: 60, bottom: 10, left: 0 }} className='Plot' baseValue={1}>
+                        <Line type="monotone" dataKey="uv" stroke="#000000" />
+                        <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0,1]} />
+                        </LineChart> 
+                : <div>Недостаточно данных для построения графика</div>}
+                    </div>
+                </div> 
+                : 
+                <div>
+                    
+                </div>}
+                </div>
+            )
+            }
+            else{
+                return <>
+                <div>Wait for it</div>
+                </>
+              }
         }
-        else{
-            return <>
-            <div>Wait for it</div>
-            </>
-          }
+        else {
+            return <div className='Graph'>
+                <div>no access</div>
+                <Link to={`/`}>Вернуться к регистрации</Link>
+            </div>
+        }
+        
 }
 
 export default Graph
