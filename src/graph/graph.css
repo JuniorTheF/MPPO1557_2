@@ -18,7 +18,18 @@
 .DateButtons{
     display: flex;
     flex-direction: column;
-    width: 5vw;
+    justify-content: center;
+    margin-top: 10px;
+}
+.Utility{
+    width: 10vw
+}
+
+.WeeklyText{
+}
+
+.MuiInput-root{
+    background-color: white;
 }
 
 .Container{

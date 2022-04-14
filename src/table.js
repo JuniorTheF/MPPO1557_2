@@ -19,7 +19,6 @@ import Paper from '@mui/material/Paper';
     let key = 0
 
     function Subentries(subentry) {
-        console.log(subentry)
         arrBody = Object.values(subentry)
         arrBody.shift()
         arrSubBody.splice(0, 0, arrBody)
@@ -38,7 +37,7 @@ import Paper from '@mui/material/Paper';
 
     props.data.map(entry => Subentries(entry)) 
     arrHead.shift()
-    
+    arrSubBody.reverse()
         return(
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">

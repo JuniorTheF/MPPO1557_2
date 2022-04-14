@@ -3,6 +3,9 @@ import './graph.css'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
 import React, { useState } from 'react';
 import BasicTable from '../table.js'
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
 
 
 
@@ -13,13 +16,17 @@ function Graph(){
     const [count, setCount] = useState(false);
     const [clicked, setClicked] = useState(false);
     const [parsedData, setParsedData] = useState([])
-    const [graphmode, setGraphmode] = useState(0)
+    const [graphMode, setGraphMode] = useState(0)
+    const [chosenDay, setChosenDay] = useState("")
+    const [chosenWeek, setChosenWeek] = useState("")
         const pageWidth = document.documentElement.scrollWidth
         const pageHeight = document.documentElement.scrollHeight
 
         const handleClick = (curr_state) => {
             setMode(curr_state) 
             setClicked(false)
+            setChosenDay("")
+            setChosenWeek("")
         }   
 
         const deleteRepeating = (argu) => {
@@ -38,6 +45,7 @@ function Graph(){
 
         
         const {state} = useLocation()
+
         async function getData(login, password, id){
             await fetch(`http://localhost/getsensors/${id}`, {headers:{'login': login, 'pw':password}})
             .then(response => response.json())
@@ -54,18 +62,26 @@ function Graph(){
             }).filter( item => item )
             setParsedData(allowed)
             setClicked(true)
-            updateParsedData()
+            addEff()
         }
 
         const getPlotData = () =>{
+            if (mode == 1){
             let preReturn = parsedData.map(unit => ({
                 name: unit.start_date.split(" ")[1],
                 uv: ((Number(unit.off_active_a) + Number(unit.off_active_b) + Number(unit.off_active_c))-(Number(unit.on_active_a) + Number(unit.on_active_b) + Number(unit.on_active_c)))/(Number(unit.off_active_a) + Number(unit.off_active_b) + Number(unit.off_active_c))
             }))
-            return preReturn
+            return preReturn}
+            else {
+                let preReturn = parsedData.map(unit => ({
+                    name: unit.start_date.split(" ")[0].slice(0,5)+" "+unit.start_date.split(" ")[1],
+                    uv: ((Number(unit.off_active_a) + Number(unit.off_active_b) + Number(unit.off_active_c))-(Number(unit.on_active_a) + Number(unit.on_active_b) + Number(unit.on_active_c)))/(Number(unit.off_active_a) + Number(unit.off_active_b) + Number(unit.off_active_c))
+                }))
+                return preReturn
+            }
         }
 
-        const updateParsedData = () =>{
+        const addEff = () =>{
             parsedData.map((subentry) => {
                 let calculated = ((Number(subentry.off_active_a) + Number(subentry.off_active_b) + Number(subentry.off_active_c))-(Number(subentry.on_active_a) + Number(subentry.on_active_b) + Number(subentry.on_active_c)))/(Number(subentry.off_active_a) + Number(subentry.off_active_b) + Number(subentry.off_active_c))
                 return Object.defineProperty(subentry, 'eff', {
@@ -78,9 +94,51 @@ function Graph(){
         }
 
         const exists = (props) =>{
-            if (props.length > 1){
+            if (props.length > 1 && graphMode == 1){
                 return true
             }
+            else if (props.length > 0 && graphMode == 0){
+                return true
+            }
+        }
+
+        const handleChange = e =>{
+            setChosenDay(e.target.value)
+            dailyChart(datePicker(e.target.value))
+        }
+
+        const handleWeekChange = e =>{
+            setChosenWeek(e.target.value)
+            dailyChart(dateWeekPicker(e.target.value))
+        }
+
+        const handleModeChange = e =>{
+            setGraphMode(e.target.value)
+        }
+        const dateWeekPicker = (date) =>{
+            let pickedItem = new Date(date)
+            pickedItem = pickedItem.getTime() - 3*60*60*1000
+            let allTimes = dailyDateList.map(num => new Date(num.split('.').reverse().join('.')).getTime())
+            let allowed = allTimes.map(time => {
+                if (time - pickedItem < 7*24*60*60*1000 && time-pickedItem>=0)
+                    return time
+            }).filter( item => item )
+            allowed = allowed.map(item => {
+                let temp = new Date(item)
+                return temp.getDate()+"."+(new Number(temp.getMonth())+1)+"."+temp.getFullYear()
+            })
+            let tempArr = fetchData
+            let newArr = []
+            while (allowed.length > 0){
+                for (let i=0; i<tempArr.length;i++){
+                    if (allowed[0]==tempArr[i].start_date.split(" ")[0]){
+                        newArr.push(tempArr[i])
+                        }
+                }
+                allowed.shift()
+                
+            }
+            return newArr
         }
 
         const datePicker = (date) =>{
@@ -99,44 +157,94 @@ function Graph(){
             if (count){
                 dailyDateList = fetchData.map(v => v.start_date.split(' ')[0])
                 dailyDateList = deleteRepeating(dailyDateList)
-                let secDiff = dailyDateList.map((num) => new Date(num.split('.').reverse().join('.')))
             return(
                 <div className='Graph'>
-                <div>
+                <div className="Utility">
                 <Link to={`/UserPage`}
                         state = {{ login: state.login, password: state.password, accessed: state.accessed }}>Вернуться на главную</Link>
                 <div className='Buttons'>
                 <button onClick={() => handleClick(1) }>Отобразить за день</button>
                 <button onClick={() => handleClick(7) } style={{'marginTop': '2%'}}>Отобразить за неделю</button>
+                {mode == 1 ? <div className="DateButtons">
+                <Select
+                label="Day"
+                variant="standard"
+                value={chosenDay}
+                onChange={handleChange}
+                >
+                    {dailyDateList.map(row => <MenuItem value={row}>{row}</MenuItem >)}
+                    {/* {dailyDateList.map((row) => <button onClick={() => dailyChart(datePicker(row))}>{row}</button>)} */}
+                </Select>
+                </div>
+                : 
+                mode == 7 ? <div>
+                    <div></div>
+                    <input type="date" value={chosenWeek} onChange={handleWeekChange}></input>
+                    </div> 
+                : null
+                }
+                
                 </div>
                 </div>
                 {mode == 1 ? 
                 <div className = "Changeble">
-                    <div className="DateButtons">
-                    {dailyDateList.map((row) => <button onClick={() => dailyChart(datePicker(row))}>{row}</button>)}
-                    </div>
-                    <div className="Container">
-                    
                     { clicked ? 
-                            exists(parsedData) && graphmode == 1 ?
+                            <div>
+                                <Select
+                                variant="standard"
+                                sx = {{ top:10, left: 10 }}
+                                onChange={handleModeChange}
+                                value={graphMode}
+                                >
+                                <MenuItem value={1}>График</MenuItem >
+                                <MenuItem value={0}>Таблица</MenuItem >
+                                </Select>
+                                <div className="Container">
+                            {exists(parsedData) && graphMode == 1 ?
                         <LineChart width={pageWidth*0.65} data={getPlotData()} height={pageHeight*0.6} margin={{ top: 10, right: 60, bottom: 10, left: 0 }} className='Plot' baseValue={1}>
                         <Line type="monotone" dataKey="uv" stroke="#000000" />
                         <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-                        <XAxis dataKey="name" />
+                        <XAxis dataKey="name" width={100}/>
                         <YAxis domain={[0,1]} />
                         </LineChart> 
-                        : exists(parsedData) && graphmode == 0 ? 
+                        : exists(parsedData) && graphMode == 0 ? 
                         <BasicTable data={parsedData} className="Container"/>
                         :
-                        <div>Недостаточно данных</div>
+                        <div>Недостаточно данных</div>}
+                        </div>
+                        </div>
                 : <div>Выберите день</div>}
-                    </div>
                 </div> 
                 : 
                 mode == 7 ? 
-                <div>
-                    Неделя
-                </div>
+                <div className = "Changeble">
+                    { clicked ? 
+                            <div>
+                                <Select
+                                variant="standard"
+                                sx = {{ top:10, left: 10 }}
+                                onChange={handleModeChange}
+                                value={graphMode}
+                                >
+                                <MenuItem value={1}>График</MenuItem >
+                                <MenuItem value={0}>Таблица</MenuItem >
+                                </Select>
+                                <div className="Container">
+                            {exists(parsedData) && graphMode == 1 ?
+                        <LineChart width={pageWidth*0.65} data={getPlotData()} height={pageHeight*0.6} margin={{ top: 10, right: 60, bottom: 10, left: 0 }} className='Plot' baseValue={1}>
+                        <Line type="monotone" dataKey="uv" stroke="#000000" />
+                        <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+                        <XAxis dataKey="name" interval={0}/>
+                        <YAxis domain={[0,1]} />
+                        </LineChart> 
+                        : exists(parsedData) && graphMode == 0 ? 
+                        <BasicTable data={parsedData} className="Container"/>
+                        :
+                        <div>Недостаточно данных</div>}
+                        </div>
+                        </div>
+                : <div>Укажите первый день недели, за которую хотите просмотреть данные</div>}
+                </div> 
                 :
                 <div>
                     Выберите режим отображения
