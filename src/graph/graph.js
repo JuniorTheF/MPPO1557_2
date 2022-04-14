@@ -55,7 +55,8 @@ function Graph(){
             })
             
         }
-        const dailyChart = (dateArray) =>{
+        const dailyChart = (dateArray, unupdated) =>{
+            if (unupdated==1){
             let allowed = dateArray.map((entry) => {
                 if (entry.off_reactive_a !== "NaN")
                     return entry
@@ -63,6 +64,21 @@ function Graph(){
             setParsedData(allowed)
             setClicked(true)
             addEff()
+            console.log(allowed, 1)
+        }
+        else{
+            let shortStr = []
+            let allowed = dateArray.map((entry) => {
+                if (entry.off_reactive_a !== "NaN")
+                    return entry
+                else {shortStr.push(entry)}
+            }).filter( item => item )
+            setParsedData(allowed)
+            setClicked(true)
+            addEff()
+            setParsedData(allowed.concat(shortStr))
+            console.log(allowed.concat(shortStr), 2)
+        }
         }
 
         const getPlotData = () =>{
@@ -104,16 +120,24 @@ function Graph(){
 
         const handleChange = e =>{
             setChosenDay(e.target.value)
-            dailyChart(datePicker(e.target.value))
+            dailyChart(datePicker(e.target.value), graphMode)
         }
 
         const handleWeekChange = e =>{
             setChosenWeek(e.target.value)
-            dailyChart(dateWeekPicker(e.target.value))
+            dailyChart(dateWeekPicker(e.target.value), graphMode)
         }
 
         const handleModeChange = e =>{
             setGraphMode(e.target.value)
+            if (mode == 1){
+                console.log("Day")
+                dailyChart(datePicker(chosenDay), e.target.value)
+            }
+            else {
+                console.log("Week")
+                dailyChart(dateWeekPicker(chosenWeek), e.target.value)
+            }
         }
         const dateWeekPicker = (date) =>{
             let pickedItem = new Date(date)
