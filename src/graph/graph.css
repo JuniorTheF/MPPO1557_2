@@ -25,7 +25,8 @@
     width: 10vw
 }
 
-.WeeklyText{
+.DatePicker{
+    margin-top: 10px;
 }
 
 .MuiInput-root{

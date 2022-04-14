@@ -59,25 +59,17 @@ function Graph(){
             if (unupdated==1){
             let allowed = dateArray.map((entry) => {
                 if (entry.off_reactive_a !== "NaN")
-                    return entry
+                    return addEff(entry)
             }).filter( item => item )
             setParsedData(allowed)
             setClicked(true)
-            addEff()
-            console.log(allowed, 1)
         }
         else{
-            let shortStr = []
-            let allowed = dateArray.map((entry) => {
-                if (entry.off_reactive_a !== "NaN")
-                    return entry
-                else {shortStr.push(entry)}
-            }).filter( item => item )
-            setParsedData(allowed)
+            
+            let allowed = dateArray.map((entry) => addEff(entry)).filter( item => item )
             setClicked(true)
-            addEff()
-            setParsedData(allowed.concat(shortStr))
-            console.log(allowed.concat(shortStr), 2)
+            console.log(allowed)
+            setParsedData(allowed)
         }
         }
 
@@ -97,16 +89,24 @@ function Graph(){
             }
         }
 
-        const addEff = () =>{
-            parsedData.map((subentry) => {
-                let calculated = ((Number(subentry.off_active_a) + Number(subentry.off_active_b) + Number(subentry.off_active_c))-(Number(subentry.on_active_a) + Number(subentry.on_active_b) + Number(subentry.on_active_c)))/(Number(subentry.off_active_a) + Number(subentry.off_active_b) + Number(subentry.off_active_c))
-                return Object.defineProperty(subentry, 'eff', {
+        const addEff = (temp) =>{
+            if (temp.off_reactive_a !== "NaN"){
+                let calculated = ((Number(temp.off_active_a) + Number(temp.off_active_b) + Number(temp.off_active_c))-(Number(temp.on_active_a) + Number(temp.on_active_b) + Number(temp.on_active_c)))/(Number(temp.off_active_a) + Number(temp.off_active_b) + Number(temp.off_active_c))
+                return Object.defineProperty(temp, 'eff', {
                   value: (calculated*100).toFixed(2)+"%",
                   enumerable: true,
                   configurable: true,
                   writable: true
-              })
-            })
+              })}
+            else{
+                return Object.defineProperty(temp, 'eff', {
+                    value: "-",
+                    enumerable: true,
+                    configurable: true,
+                    writable: true
+              }
+                )
+            }
         }
 
         const exists = (props) =>{
@@ -131,11 +131,9 @@ function Graph(){
         const handleModeChange = e =>{
             setGraphMode(e.target.value)
             if (mode == 1){
-                console.log("Day")
                 dailyChart(datePicker(chosenDay), e.target.value)
             }
             else {
-                console.log("Week")
                 dailyChart(dateWeekPicker(chosenWeek), e.target.value)
             }
         }
@@ -164,6 +162,37 @@ function Graph(){
             }
             return newArr
         }
+
+        const getTableData = (table) =>{
+            return table.map(item => {
+                let i = 0
+                let newObj = {}
+                let tempValues = Object.values(item)
+                let eff = tempValues.pop()
+                for (const[key] of Object.entries(item)){
+                    Object.defineProperty(newObj, key, {
+                    value: tempValues[i],
+                    enumerable: true,
+                    configurable: true,
+                    writable: true
+              }
+                )
+                i++
+                if (i>15){
+                    break
+                }
+            }
+            Object.defineProperty(newObj, "eff", {
+                value: eff,
+                enumerable: true,
+                configurable: true,
+                writable: true
+            })
+            console.log(newObj)
+            return newObj
+        })
+
+    }
 
         const datePicker = (date) =>{
             let newArr = fetchData.map((item) => {
@@ -203,7 +232,7 @@ function Graph(){
                 : 
                 mode == 7 ? <div>
                     <div></div>
-                    <input type="date" value={chosenWeek} onChange={handleWeekChange}></input>
+                    <input type="date" value={chosenWeek} onChange={handleWeekChange} className="DatePicker"></input>
                     </div> 
                 : null
                 }
@@ -228,11 +257,11 @@ function Graph(){
                         <LineChart width={pageWidth*0.65} data={getPlotData()} height={pageHeight*0.6} margin={{ top: 10, right: 60, bottom: 10, left: 0 }} className='Plot' baseValue={1}>
                         <Line type="monotone" dataKey="uv" stroke="#000000" />
                         <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-                        <XAxis dataKey="name" width={100}/>
+                        <XAxis dataKey="name" interval={0}/>
                         <YAxis domain={[0,1]} />
                         </LineChart> 
                         : exists(parsedData) && graphMode == 0 ? 
-                        <BasicTable data={parsedData} className="Container"/>
+                        <BasicTable data={getTableData(parsedData)} className="Container"/>
                         :
                         <div>Недостаточно данных</div>}
                         </div>
@@ -262,7 +291,7 @@ function Graph(){
                         <YAxis domain={[0,1]} />
                         </LineChart> 
                         : exists(parsedData) && graphMode == 0 ? 
-                        <BasicTable data={parsedData} className="Container"/>
+                        <BasicTable data={getTableData(parsedData)} className="Container"/>
                         :
                         <div>Недостаточно данных</div>}
                         </div>
