@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import BasicTable from '../table.js'
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import Box from '@mui/material/Box';
+// import Box from '@mui/material/Box';
 
 
 
@@ -56,7 +56,7 @@ function Graph(){
             
         }
         const dailyChart = (dateArray, unupdated) =>{
-            if (unupdated==1){
+            if (unupdated===1){
             let allowed = dateArray.map((entry) => {
                 if (entry.off_reactive_a !== "NaN")
                     return addEff(entry)
@@ -74,7 +74,7 @@ function Graph(){
         }
 
         const getPlotData = () =>{
-            if (mode == 1){
+            if (mode === 1){
             let preReturn = parsedData.map(unit => ({
                 name: unit.start_date.split(" ")[1],
                 uv: ((Number(unit.off_active_a) + Number(unit.off_active_b) + Number(unit.off_active_c))-(Number(unit.on_active_a) + Number(unit.on_active_b) + Number(unit.on_active_c)))/(Number(unit.off_active_a) + Number(unit.off_active_b) + Number(unit.off_active_c))
@@ -110,10 +110,10 @@ function Graph(){
         }
 
         const exists = (props) =>{
-            if (props.length > 1 && graphMode == 1){
+            if (props.length > 1 && graphMode === 1){
                 return true
             }
-            else if (props.length > 0 && graphMode == 0){
+            else if (props.length > 0 && graphMode === 0){
                 return true
             }
         }
@@ -130,7 +130,7 @@ function Graph(){
 
         const handleModeChange = e =>{
             setGraphMode(e.target.value)
-            if (mode == 1){
+            if (mode === 1){
                 dailyChart(datePicker(chosenDay), e.target.value)
             }
             else {
@@ -153,7 +153,7 @@ function Graph(){
             let newArr = []
             while (allowed.length > 0){
                 for (let i=0; i<tempArr.length;i++){
-                    if (allowed[0]==tempArr[i].start_date.split(" ")[0]){
+                    if (allowed[0]===tempArr[i].start_date.split(" ")[0]){
                         newArr.push(tempArr[i])
                         }
                 }
@@ -196,7 +196,7 @@ function Graph(){
 
         const datePicker = (date) =>{
             let newArr = fetchData.map((item) => {
-                if (item.start_date.split(' ')[0] == date)
+                if (item.start_date.split(' ')[0] === date)
                     return item
             })
             return newArr.filter( item => item )
@@ -218,7 +218,7 @@ function Graph(){
                 <div className='Buttons'>
                 <button onClick={() => handleClick(1) }>Отобразить за день</button>
                 <button onClick={() => handleClick(7) } style={{'marginTop': '2%'}}>Отобразить за неделю</button>
-                {mode == 1 ? <div className="DateButtons">
+                {mode === 1 ? <div className="DateButtons">
                 <Select
                 label="Day"
                 variant="standard"
@@ -230,7 +230,7 @@ function Graph(){
                 </Select>
                 </div>
                 : 
-                mode == 7 ? <div>
+                mode === 7 ? <div>
                     <div></div>
                     <input type="date" value={chosenWeek} onChange={handleWeekChange} className="DatePicker"></input>
                     </div> 
@@ -239,7 +239,7 @@ function Graph(){
                 
                 </div>
                 </div>
-                {mode == 1 ? 
+                {mode === 1 ? 
                 <div className = "Changeble">
                     { clicked ? 
                             <div>
@@ -253,14 +253,14 @@ function Graph(){
                                 <MenuItem value={0}>Таблица</MenuItem >
                                 </Select>
                                 <div className="Container">
-                            {exists(parsedData) && graphMode == 1 ?
+                            {exists(parsedData) && graphMode === 1 ?
                         <LineChart width={pageWidth*0.65} data={getPlotData()} height={pageHeight*0.6} margin={{ top: 10, right: 60, bottom: 10, left: 0 }} className='Plot' baseValue={1}>
                         <Line type="monotone" dataKey="uv" stroke="#000000" />
                         <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
                         <XAxis dataKey="name" interval={0}/>
                         <YAxis domain={[0,1]} />
                         </LineChart> 
-                        : exists(parsedData) && graphMode == 0 ? 
+                        : exists(parsedData) && graphMode === 0 ? 
                         <BasicTable data={getTableData(parsedData)} className="Container"/>
                         :
                         <div>Недостаточно данных</div>}
@@ -269,7 +269,7 @@ function Graph(){
                 : <div>Выберите день</div>}
                 </div> 
                 : 
-                mode == 7 ? 
+                mode === 7 ? 
                 <div className = "Changeble">
                     { clicked ? 
                             <div>
@@ -283,14 +283,14 @@ function Graph(){
                                 <MenuItem value={0}>Таблица</MenuItem >
                                 </Select>
                                 <div className="Container">
-                            {exists(parsedData) && graphMode == 1 ?
+                            {exists(parsedData) && graphMode === 1 ?
                         <LineChart width={pageWidth*0.65} data={getPlotData()} height={pageHeight*0.6} margin={{ top: 10, right: 60, bottom: 10, left: 0 }} className='Plot' baseValue={1}>
                         <Line type="monotone" dataKey="uv" stroke="#000000" />
                         <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
                         <XAxis dataKey="name" interval={0}/>
                         <YAxis domain={[0,1]} />
                         </LineChart> 
-                        : exists(parsedData) && graphMode == 0 ? 
+                        : exists(parsedData) && graphMode === 0 ? 
                         <BasicTable data={getTableData(parsedData)} className="Container"/>
                         :
                         <div>Недостаточно данных</div>}

@@ -1,4 +1,4 @@
-import {useState} from 'react'
+// import {useState} from 'react'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -11,7 +11,7 @@ import Paper from '@mui/material/Paper';
   export default function BasicTable(props) {
     // const [iterations, setIterations] = useState(1)
     // subentries(data.data[0])
-    let arrMainHead =[]
+    // let arrMainHead =[]
     let arrHead = []
     let arrSubBody = []
     let arrBody = []
@@ -23,7 +23,7 @@ import Paper from '@mui/material/Paper';
         arrBody.shift()
         arrSubBody.splice(0, 0, arrBody)
         for (const [key] of Object.entries(subentry)) {
-        if (flag == 0)
+        if (flag === 0)
             arrHead.push(key)
         // console.log(arrHead)
         // console.log(arrBody)
